@@ -4,15 +4,12 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const { MongoClient } = require("mongodb");
 const jwt = require("jsonwebtoken");
-
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection URL
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -21,14 +18,10 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect to MongoDB
     await client.connect();
     console.log("Connected to MongoDB");
+    const collection = client.db("nextauth").collection("users");
 
-    const db = client.db("authentication");
-    const collection = db.collection("users");
-
-    // User Registration
     app.post("/api/v1/register", async (req, res) => {
       const { username, email, password } = req.body;
 
@@ -100,11 +93,18 @@ async function run() {
 
 run().catch(console.dir);
 
-// Test route
 app.get("/", (req, res) => {
-  const serverStatus = {
-    message: "Server is running smoothly",
-    timestamp: new Date(),
-  };
-  res.json(serverStatus);
+  res.send(`
+    Server is running smoothly
+    ${new Date().toLocaleString("en-BD", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true
+  })}
+  `);
 });
